@@ -1,3 +1,5 @@
+mod first_day;
+
 fn main() {
-    println!("Hello, world!");
+    first_day::main();
 }
