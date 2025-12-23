@@ -56,7 +56,6 @@ fn count_accessible_rolls_with_iterative_removal(mut rolls: Vec<RollOfPaper>) ->
     let mut total_removed_rolls = 0;
     let mut available_rolls = brute_force_accessible_rolls(&rolls, 3);
     while !available_rolls.is_empty() {
-        dbg!(available_rolls)
         available_rolls = brute_force_accessible_rolls(&rolls, 3);
         total_removed_rolls += available_rolls.len();
         remove_available_rolls(&mut rolls, &available_rolls);
