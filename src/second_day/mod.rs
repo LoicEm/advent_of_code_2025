@@ -7,13 +7,13 @@ use thiserror::Error;
 mod tests;
 
 #[derive(Debug)]
-struct InputIdRange {
-    start: usize,
-    end: usize,
+pub struct InputIdRange {
+    pub start: usize,
+    pub end: usize,
 }
 
 #[derive(Error, Debug)]
-enum InvalidInputError {
+pub enum InvalidInputError {
     #[error("Could not find start and date from {0}")]
     StartAndEndNotParsed(String),
     #[error("Could not parse int from {0}")]
@@ -23,7 +23,7 @@ enum InvalidInputError {
 }
 
 impl InputIdRange {
-    fn new(input_string: &str) -> Result<Self, InvalidInputError> {
+    pub fn new(input_string: &str) -> Result<Self, InvalidInputError> {
         let split_input = input_string.trim().split("-").collect::<Vec<&str>>();
         if let [start, end] = split_input[..] {
             Ok(InputIdRange {
