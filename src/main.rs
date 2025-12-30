@@ -6,6 +6,7 @@ mod fifth_day;
 mod first_day;
 mod fourth_day;
 mod second_day;
+mod sixth_day;
 mod third_day;
 
 #[derive(Debug, Clone, Copy, Selectable, EnumDisplay)]
@@ -15,6 +16,7 @@ enum DayOption {
     Third,
     Fourth,
     Fifth,
+    Sixth,
     Exit,
 }
 
@@ -25,12 +27,13 @@ fn main() -> InquireResult<()> {
             DayOption::select("Select the day over which to run the problem, or exit").prompt()?;
 
         match day {
+            DayOption::Exit => prompt_for_selection = false,
             DayOption::First => first_day::main(),
             DayOption::Second => second_day::main(),
             DayOption::Third => third_day::main(),
             DayOption::Fourth => fourth_day::main(),
             DayOption::Fifth => fifth_day::main(),
-            DayOption::Exit => prompt_for_selection = false,
+            DayOption::Sixth => sixth_day::main(),
         }
     }
     Ok(())
