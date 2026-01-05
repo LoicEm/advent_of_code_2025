@@ -6,6 +6,7 @@ mod fifth_day;
 mod first_day;
 mod fourth_day;
 mod second_day;
+mod seventh_day;
 mod sixth_day;
 mod third_day;
 
@@ -17,6 +18,7 @@ enum DayOption {
     Fourth,
     Fifth,
     Sixth,
+    Seventh,
     Exit,
 }
 
@@ -34,6 +36,7 @@ fn main() -> InquireResult<()> {
             DayOption::Fourth => fourth_day::main(),
             DayOption::Fifth => fifth_day::main(),
             DayOption::Sixth => sixth_day::main(),
+            DayOption::Seventh => seventh_day::main(),
         }
     }
     Ok(())
