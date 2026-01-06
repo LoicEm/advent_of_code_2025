@@ -2,6 +2,7 @@ use enum_display::EnumDisplay;
 use inquire::error::InquireResult;
 use inquire_derive::Selectable;
 
+mod eight_day;
 mod fifth_day;
 mod first_day;
 mod fourth_day;
@@ -19,6 +20,7 @@ enum DayOption {
     Fifth,
     Sixth,
     Seventh,
+    Eight,
     Exit,
 }
 
@@ -37,6 +39,7 @@ fn main() -> InquireResult<()> {
             DayOption::Fifth => fifth_day::main(),
             DayOption::Sixth => sixth_day::main(),
             DayOption::Seventh => seventh_day::main(),
+            DayOption::Eight => eight_day::main(),
         }
     }
     Ok(())
