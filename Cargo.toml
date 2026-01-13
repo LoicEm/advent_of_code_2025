@@ -10,3 +10,6 @@ inquire = "0.9.1"
 inquire-derive = "0.9.1"
 itertools = "0.14.0"
 thiserror = "2.0.17"
+
+[dev-dependencies]
+test-case = "3.3.1"
