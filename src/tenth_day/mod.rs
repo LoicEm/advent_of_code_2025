@@ -1,5 +1,5 @@
 use std::{
-    cmp::min,
+    cmp::{Ordering, min},
     collections::{HashMap, HashSet, VecDeque},
     fs::read_to_string,
     num::ParseIntError,
@@ -116,7 +116,7 @@ impl Machine {
     fn find_joltage_backtrack(&self) -> Result<usize, ToggleSolutionError> {
         println!("starting {:?}", &self.target_joltage);
         let target_state = vec![0; self.target_joltage.len()];
-        let mut maximum_n_buttons = usize::MAX;
+        let mut maximum_n_buttons: usize = self.target_joltage.iter().sum::<u16>() as usize;
         let sorted_buttons = self.sort_buttons_by_joltage_counter_button_number();
         let start_time = SystemTime::now();
 
@@ -140,6 +140,7 @@ impl Machine {
             if (current_button_index >= available_buttons.len())
             // No need to search a branch if we know it's longer than the current solution
                 || (current_n_buttons >= *maximum_n_buttons)
+                || (current_n_buttons + (*current_state.iter().max().expect("The current state to never be empty") as usize) >= *maximum_n_buttons)
                 || if let Some(state_button_press) = explored_states.get(&(current_button_index, current_state.clone())) {
                     current_n_buttons >= *state_button_press
                 } else {false}
@@ -238,10 +239,17 @@ impl Machine {
             let button_counts_per_joltage = count_joltage_counter_number_of_buttons(&buttons);
             // Sort in descending order
             joltages.sort_by(|joltage_a, joltage_b| {
-                button_counts_per_joltage
-                    .get(joltage_b)
-                    .cmp(&button_counts_per_joltage.get(joltage_a))
-                    .then(self.target_joltage[*joltage_b].cmp(&self.target_joltage[*joltage_a]))
+                match (
+                    button_counts_per_joltage.get(joltage_a),
+                    button_counts_per_joltage.get(joltage_b),
+                ) {
+                    (Some(joltage_count_a), Some(joltage_count_b)) => self.target_joltage
+                        [*joltage_b]
+                        .pow(*joltage_count_b)
+                        .cmp(&self.target_joltage[*joltage_a].pow(*joltage_count_a)),
+                    // In all other case it's just another loop which will not add any voltage
+                    _ => Ordering::Equal,
+                }
             });
             // Take last element
             let joltage_with_most_priority =
@@ -261,7 +269,7 @@ impl Machine {
     }
 }
 
-fn count_joltage_counter_number_of_buttons(buttons: &Vec<Button>) -> HashMap<&usize, i32> {
+fn count_joltage_counter_number_of_buttons(buttons: &Vec<Button>) -> HashMap<&usize, u32> {
     let mut button_counts_per_joltage = HashMap::new();
     buttons
         .iter()
