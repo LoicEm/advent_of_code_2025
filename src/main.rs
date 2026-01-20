@@ -10,6 +10,7 @@ mod ninth_day;
 mod second_day;
 mod seventh_day;
 mod sixth_day;
+mod tenth_day;
 mod third_day;
 
 #[derive(Debug, Clone, Copy, Selectable, EnumDisplay)]
@@ -23,14 +24,14 @@ enum DayOption {
     Seventh,
     Eight,
     Ninth,
+    Tenth,
     Exit,
 }
 
 fn main() -> InquireResult<()> {
     let mut prompt_for_selection = true;
     while prompt_for_selection {
-        let day =
-            DayOption::select("Select the day over which to run the problem, or exit").prompt()?;
+        let day = DayOption::select("Select the day, or exit").prompt()?;
 
         match day {
             DayOption::Exit => prompt_for_selection = false,
@@ -43,6 +44,7 @@ fn main() -> InquireResult<()> {
             DayOption::Seventh => seventh_day::main(),
             DayOption::Eight => eight_day::main(),
             DayOption::Ninth => ninth_day::main(),
+            DayOption::Tenth => tenth_day::main(),
         }
     }
     Ok(())
