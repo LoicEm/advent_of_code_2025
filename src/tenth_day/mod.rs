@@ -164,24 +164,28 @@ impl Machine {
                 .get(current_button_index)
                 .expect("The button to be in the available buttons");
             let mut new_state = current_state.clone();
+            let mut button_can_be_pushed = true;
             for &joltage_index in button.lights_activated.iter() {
                 if new_state[joltage_index] == 0 {
-                    return Ok(None);
+                    button_can_be_pushed = false;
+                    break;
                 } else {
                     new_state[joltage_index] -= 1
                 }
             }
-            if let Ok(Some(new_n_buttons)) = backtrack(
-                new_state,
-                target_state,
-                current_n_buttons + 1,
-                available_buttons,
-                current_button_index,
-                maximum_n_buttons,
-                false,
-                explored_states,
-            ) {
-                *maximum_n_buttons = min(new_n_buttons, *maximum_n_buttons);
+            if button_can_be_pushed {
+                if let Ok(Some(new_n_buttons)) = backtrack(
+                    new_state,
+                    target_state,
+                    current_n_buttons + 1,
+                    available_buttons,
+                    current_button_index,
+                    maximum_n_buttons,
+                    false,
+                    explored_states,
+                ) {
+                    *maximum_n_buttons = min(new_n_buttons, *maximum_n_buttons);
+                }
             }
             if let Ok(Some(new_n_buttons)) = backtrack(
                 current_state,
