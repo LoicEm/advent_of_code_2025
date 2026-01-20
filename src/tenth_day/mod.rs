@@ -123,7 +123,7 @@ impl Machine {
         let mut explored_states: HashMap<(usize, Vec<u16>), usize> = HashMap::new();
 
         fn backtrack(
-            current_state: Vec<u16>,
+            current_state: &mut Vec<u16>,
             target_state: &Vec<u16>,
             current_n_buttons: usize,
             available_buttons: &Vec<Button>,
@@ -132,9 +132,8 @@ impl Machine {
             just_advanced_index: bool,
             explored_states: &mut HashMap<(usize, Vec<u16>), usize>,
         ) -> Result<Option<usize>, ToggleSolutionError> {
-            dbg!(&current_n_buttons, &current_button_index, &current_state,);
             // Verify if current state is a success
-            if &current_state == target_state {
+            if current_state == target_state {
                 return Ok(Some(current_n_buttons));
             }
             // Else verify if it's a deadend
@@ -163,19 +162,18 @@ impl Machine {
             let button = available_buttons
                 .get(current_button_index)
                 .expect("The button to be in the available buttons");
-            let mut new_state = current_state.clone();
-            let mut button_can_be_pushed = true;
-            for &joltage_index in button.lights_activated.iter() {
-                if new_state[joltage_index] == 0 {
-                    button_can_be_pushed = false;
-                    break;
-                } else {
-                    new_state[joltage_index] -= 1
-                }
-            }
+            let button_can_be_pushed = button
+                .lights_activated
+                .iter()
+                .all(|&joltage_index| current_state[joltage_index] > 0);
             if button_can_be_pushed {
+                // Apply
+                for &joltage_index in button.lights_activated.iter() {
+                    current_state[joltage_index] -= 1
+                }
+
                 if let Ok(Some(new_n_buttons)) = backtrack(
-                    new_state,
+                    current_state,
                     target_state,
                     current_n_buttons + 1,
                     available_buttons,
@@ -185,6 +183,11 @@ impl Machine {
                     explored_states,
                 ) {
                     *maximum_n_buttons = min(new_n_buttons, *maximum_n_buttons);
+                }
+
+                //Undo
+                for &joltage_index in button.lights_activated.iter() {
+                    current_state[joltage_index] += 1
                 }
             }
             if let Ok(Some(new_n_buttons)) = backtrack(
@@ -206,7 +209,7 @@ impl Machine {
             }
         }
         let result = backtrack(
-            self.target_joltage.clone(),
+            &mut self.target_joltage.clone(),
             &target_state,
             0,
             &sorted_buttons,
