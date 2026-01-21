@@ -8,7 +8,7 @@ use std::{
 };
 
 use anyhow::{Result, anyhow};
-use dpc_pariter::IteratorExt;
+use good_lp::{Expression, Solution, SolverModel, constraint, default_solver, variable, variables};
 use itertools::Itertools;
 use regex::Regex;
 use thiserror::Error;
@@ -113,6 +113,7 @@ impl Machine {
         Err(ToggleSolutionError::IterationLimitReached(i))
     }
 
+    #[allow(dead_code)]
     fn find_joltage_backtrack(&self) -> Result<usize, ToggleSolutionError> {
         println!("starting {:?}", &self.target_joltage);
         let target_state = vec![0; self.target_joltage.len()];
@@ -259,6 +260,44 @@ impl Machine {
 
         final_buttons
     }
+
+    fn solve_linear_programming(&self) -> Result<usize> {
+        // Give up an use an external library to solve this as a linear programming problem
+        let mut vars = variables!();
+        let a: Vec<_> = (0..self.buttons.len())
+            .map(|_| vars.add(variable().integer().min(0)))
+            .collect();
+
+        // Constraint: sum a_i * x_i[j] = v[j] for each dimension j
+        let objective: Expression = a.iter().sum();
+        let mut problem = vars.minimise(objective).using(default_solver);
+
+        let linear_button_representation = self
+            .buttons
+            .iter()
+            .map(
+                |Button {
+                     lights_activated, ..
+                 }| {
+                    let mut output: Vec<i32> = vec![0; self.target_joltage.len()];
+                    lights_activated.iter().for_each(|i| output[*i] += 1);
+                    output
+                },
+            )
+            .collect::<Vec<Vec<i32>>>();
+        for j in 0..self.target_joltage.len() {
+            let mut expr: Expression = 0.into();
+            for i in 0..linear_button_representation.len() {
+                expr = expr + a[i] * linear_button_representation[i][j];
+            }
+            problem = problem.with(constraint!(expr == self.target_joltage[j]));
+        }
+
+        let solution = problem.solve()?;
+        Ok(a.iter()
+            .map(|&variable| solution.value(variable) as usize)
+            .sum())
+    }
 }
 
 fn count_joltage_counter_number_of_buttons(buttons: &Vec<Button>) -> HashMap<&usize, i32> {
@@ -347,9 +386,9 @@ pub fn main() {
     );
     let second_problem_solution: usize = input
         .into_iter()
-        .parallel_map(|machine| {
+        .map(|machine| {
             machine
-                .find_joltage_backtrack()
+                .solve_linear_programming()
                 .expect("A solution to exist to find the correct joltage")
         })
         .sum();

@@ -22,20 +22,6 @@ fn test_first_problem_example() {
 }
 
 #[test]
-fn test_second_problem_example() {
-    let input = parse_input(INPUT.to_string()).expect("The input to be correctly parsed");
-    let second_problem_solution: usize = input
-        .iter()
-        .map(|machine| {
-            machine
-                .find_joltage_backtrack()
-                .expect("The joltage combination to have a solution")
-        })
-        .sum();
-    assert_eq!(second_problem_solution, 33)
-}
-
-#[test]
 fn test_button_ordering() {
     let machine = Machine::new("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}")
         .expect("The machine to be correctly created");
@@ -69,4 +55,28 @@ fn test_button_ordering() {
             },
         ]
     )
+}
+
+#[test]
+fn test_lp_solver() {
+    let machine = Machine::new("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}")
+        .expect("The machine to be correctly created");
+    let result = machine
+        .solve_linear_programming()
+        .expect("The result to be valid");
+    assert_eq!(result, 10)
+}
+
+#[test]
+fn test_second_problem_example() {
+    let input = parse_input(INPUT.to_string()).expect("The input to be correctly parsed");
+    let second_problem_solution: usize = input
+        .iter()
+        .map(|machine| {
+            machine
+                .solve_linear_programming()
+                .expect("The joltage combination to have a solution")
+        })
+        .sum();
+    assert_eq!(second_problem_solution, 33)
 }
