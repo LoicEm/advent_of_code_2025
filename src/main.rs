@@ -3,6 +3,7 @@ use inquire::error::InquireResult;
 use inquire_derive::Selectable;
 
 mod eight_day;
+mod eleventh_day;
 mod fifth_day;
 mod first_day;
 mod fourth_day;
@@ -25,6 +26,7 @@ enum DayOption {
     Eight,
     Ninth,
     Tenth,
+    Eleventh,
     Exit,
 }
 
@@ -45,6 +47,7 @@ fn main() -> InquireResult<()> {
             DayOption::Eight => eight_day::main(),
             DayOption::Ninth => ninth_day::main(),
             DayOption::Tenth => tenth_day::main(),
+            DayOption::Eleventh => eleventh_day::main(),
         }
     }
     Ok(())
